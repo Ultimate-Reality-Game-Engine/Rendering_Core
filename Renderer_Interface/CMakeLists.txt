@@ -4,14 +4,16 @@
 #**************************************************************************************************
 include(FetchContent)
 
-if (NOT TARGET Utilities)
-	# Fetch the Utilities library
-	FetchContent_Declare(
-		Utilities 
-		GIT_REPOSITORY https://github.com/Ultimate-Reality-Game-Engine/Utilities.git 
-		GIT_TAG master
-	)
-	FetchContent_MakeAvailable(Utilities)
+if (NOT TARGET UtilitiesShared)
+	if(NOT TARGET UtilitiesStatic)
+		# Fetch the Utilities library
+		FetchContent_Declare(
+			Utilities 
+			GIT_REPOSITORY https://github.com/Ultimate-Reality-Game-Engine/Utilities.git 
+			GIT_TAG master
+		)
+		FetchContent_MakeAvailable(Utilities)
+	endif()
 endif()
 
 # Create the Renderer Interface library
