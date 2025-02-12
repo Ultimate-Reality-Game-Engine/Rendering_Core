@@ -3,6 +3,8 @@
 # Create options that are dependent onthis project being top level
 option(RENDERER_INTERFACE_VERBOSE "Enable verbose messages for RendererInterface" ${PROJECT_IS_TOP_LEVEL})
 
+message(STATUS "RENDERER_INTERFACE_VERBOSE: ${RENDERER_INTERFACE_VERBOSE}")
+
 # Target Creation *********************************************************************************
 #**************************************************************************************************
 include(FetchContent)
@@ -118,7 +120,6 @@ set(CPACK_PACKAGE_VENDOR "Andrew Todd")
 set(CPACK_PACKAGE_CONTACT "andrewdanieltodd@gmail.com")
 include(CPack)
 
-message(STATUS "RENDERER_INTERFACE_VERBOSE: ${RENDERER_INTERFACE_VERBOSE}")
 if(RENDERER_INTERFACE_VERBOSE)
 	message(STATUS "PACKAGE_VERSION is: ${PACKAGE_VERSION}")
 	message(STATUS "PACKAGE_FILE_NAME is: ${CPACK_PACKAGE_FILE_NAME}")

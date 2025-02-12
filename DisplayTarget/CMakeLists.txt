@@ -3,6 +3,8 @@
 # Create options that are dependent onthis project being top level
 option(DISPLAY_TARGET_VERBOSE "Enable verbose messages for DisplayTarget" ${PROJECT_IS_TOP_LEVEL})
 
+message(STATUS "DISPLAY_TARGET_VERBOSE: ${DISPLAY_TARGET_VERBOSE}")
+
 # Target Creation *********************************************************************************
 #**************************************************************************************************
 
