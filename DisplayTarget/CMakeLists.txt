@@ -1,5 +1,8 @@
 # CMakeList.txt : CMakeLists for UltReality::Rendering::DisplayTarget
 
+# Create options that are dependent onthis project being top level
+option(DISPLAY_TARGET_VERBOSE "Enable verbose messages for DisplayTarget" ${PROJECT_IS_TOP_LEVEL})
+
 # Target Creation *********************************************************************************
 #**************************************************************************************************
 
@@ -131,7 +134,10 @@ set(CPACK_PACKAGE_VERSION "${PACKAGE_VERSION}")
 set(CPACK_PACKAGE_VENDOR "Andrew Todd")
 set(CPACK_PACKAGE_CONTACT "andrewdanieltodd@gmail.com")
 include(CPack)
-message(STATUS "PACKAGE_VERSION is: ${PACKAGE_VERSION}")
-message(STATUS "PACKAGE_FILE_NAME is: ${CPACK_PACKAGE_FILE_NAME}")
+
+if(DISPLAY_TARGET_VERBOSE)
+	message(STATUS "PACKAGE_VERSION is: ${PACKAGE_VERSION}")
+	message(STATUS "PACKAGE_FILE_NAME is: ${CPACK_PACKAGE_FILE_NAME}")
+endif()
 # End Installation and Packing Configuration ******************************************************
 #**************************************************************************************************
