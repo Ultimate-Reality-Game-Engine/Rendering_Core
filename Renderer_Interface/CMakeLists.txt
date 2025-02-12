@@ -60,7 +60,7 @@ install(
 	EXPORT RendererInterface_Targets 
 	FILE RendererInterface_Targets.cmake 
 	NAMESPACE UltReality::Rendering:: 
-	DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/RendererInterface/cmake
+	DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/cmake/RendererInterface
 )
 
 # Install the actual includes
@@ -79,14 +79,14 @@ write_basic_package_version_file(
 configure_package_config_file(
 	"${CMAKE_CURRENT_SOURCE_DIR}/cmake_config/RendererInterface_Config.cmake.in" 
 	"${CMAKE_CURRENT_BINARY_DIR}/RendererInterface_Config.cmake" 
-	INSTALL_DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/RendererInterface/cmake
+	INSTALL_DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/cmake/RendererInterface
 )
 
 # Install the CMake config files
 install(
 	FILES "${CMAKE_CURRENT_BINARY_DIR}/RendererInterface_ConfigVersion.cmake" 
 	"${CMAKE_CURRENT_BINARY_DIR}/RendererInterface_Config.cmake" 
-	DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/RendererInterface/cmake
+	DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/cmake/RendererInterface
 )
 
 # Define Package install paths

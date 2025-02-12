@@ -77,7 +77,7 @@ install(
 	EXPORT DisplayTarget_Targets 
 	FILE DisplayTarget_Targets.cmake 
 	NAMESPACE UltReality::Rendering:: 
-	DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/DisplayTarget/cmake
+	DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/cmake/DisplayTarget
 )
 
 # Install the actual includes
@@ -96,14 +96,14 @@ write_basic_package_version_file(
 configure_package_config_file(
 	"${CMAKE_CURRENT_SOURCE_DIR}/cmake_config/DisplayTarget_Config.cmake.in" 
 	"${CMAKE_CURRENT_BINARY_DIR}/DisplayTarget_Config.cmake" 
-	INSTALL_DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/DisplayTarget/cmake
+	INSTALL_DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/cmake/DisplayTarget
 )
 
 # Install the CMake config files
 install(
 	FILES "${CMAKE_CURRENT_BINARY_DIR}/DisplayTarget_ConfigVersion.cmake" 
 	"${CMAKE_CURRENT_BINARY_DIR}/DisplayTarget_Config.cmake" 
-	DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/DisplayTarget/cmake
+	DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/cmake/DisplayTarget
 )
 
 # Define Package install paths
