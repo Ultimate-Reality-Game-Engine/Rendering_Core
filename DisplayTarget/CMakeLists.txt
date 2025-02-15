@@ -1,5 +1,7 @@
 # CMakeList.txt : CMakeLists for UltReality::Rendering::DisplayTarget
 
+project(DISPLAY_TARGET VERSION 1.0.0)
+
 # Create options that are dependent onthis project being top level
 option(DISPLAY_TARGET_VERBOSE "Enable verbose messages for DisplayTarget" ${PROJECT_IS_TOP_LEVEL})
 

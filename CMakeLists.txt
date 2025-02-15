@@ -26,18 +26,52 @@ endif()
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Create options that are dependent on this project being top level
-option(RENDERING_CORE_INSTALL "Enable project install" ${PROJECT_IS_TOP_LEVEL})
+option(RENDERING_CORE_BUILD_TESTS "Build the test suit" ${PROJECT_IS_TOP_LEVEL})
 
 include(GNUInstallDirs)
 
 # End CMake configuration and settings ************************************************************
 #**************************************************************************************************
 
-# Sub Directories *********************************************************************************
+# Create Global Properties ************************************************************************
+#**************************************************************************************************
+
+if(RENDERING_CORE_BUILD_TESTS)
+	# Create a set for build all unit tests
+	set_property(GLOBAL PROPERTY UNIT_TEST_TARGETS "")
+	set_property(GLOBAL PROPERTY UNIT_TEST_SOURCES "")
+endif()
+
+# End Create Global Properties ********************************************************************
+#**************************************************************************************************
+
+# Add Sub-Directories *****************************************************************************
 #**************************************************************************************************
 
 add_subdirectory(DisplayTarget)
+add_subdirectory(Primitives)
 add_subdirectory(Renderer_Interface)
 
-# End Sub Directories *****************************************************************************
+# End Add Sub-Directories *************************************************************************
+#**************************************************************************************************
+
+# Create Unit Test Groups *************************************************************************
+#**************************************************************************************************
+if(RENDERING_CORE_BUILD_TESTS)
+	get_property(test_targets GLOBAL PROPERTY UNIT_TEST_TARGETS)
+	if(test_targets)
+		# Create a custom target for all tests
+		add_custom_target(all_unit_tests DEPENDS ${test_targets})
+	endif()
+
+	get_property(test_source GLOBAL PROPERTY UNIT_TEST_SOURCES)
+	if(test_source)
+		# Create an executable for the custom target, such that the IDEs can see it as a runnable target
+		add_executable(run_all_unit_tests EXCLUDE_FROM_ALL ${test_source})
+		# Link the executable with GTest and the TokenValueParser library
+		target_link_libraries(run_all_unit_tests PRIVATE GTest::gtest_main UtilitiesShared UtilitiesStatic)
+		set_target_properties(run_all_unit_tests PROPERTIES INSTALLABLE OFF)
+	endif()
+endif()
+# End Create Unit Test Groups *********************************************************************
 #**************************************************************************************************

@@ -1,5 +1,7 @@
 # CMakeList.txt : CMakeLists for UltReality::Rendering::Renderer_Interface
 
+project(RENDERING_INTERFACE VERSION 1.0.0)
+
 # Create options that are dependent onthis project being top level
 option(RENDERER_INTERFACE_VERBOSE "Enable verbose messages for RendererInterface" ${PROJECT_IS_TOP_LEVEL})
 
