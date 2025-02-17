@@ -154,10 +154,48 @@ namespace UltReality::Rendering
 
 	struct PerformanceSettings
 	{
-		uint16_t targetFPS;
 		bool dynamicResolution;
 		uint16_t minResolution;
 		uint16_t maxResolution;
+	};
+
+	using BufferHandle = size_t;
+	using TextureHandle = size_t;
+	using ShaderHandle = size_t;
+
+	enum class BufferUsage
+	{
+		Static, 
+		Dynamic
+	};
+
+	struct TextureDesc
+	{
+		uint16_t width;
+		uint16_t height;
+		uint16_t depth = 0; // For 3D textures
+		uint16_t mipLevels;
+	};
+
+	struct TextureUpdateDesc
+	{
+		uint16_t x;			// starting x coordinate
+		uint16_t y;			// starting y coordinate
+		uint16_t x = 0;		// starting z coordinate
+		uint16_t width;		// width of the region to update
+		uint16_t height;	// height of the region to update
+		uint16_t depth;		// depth of the region to update
+	};
+
+	enum class ShaderType
+	{
+		Vertex,
+		Pixel,
+		Geometry,
+		Hull,
+		Domain,
+		Compute,
+		Mesh
 	};
 
 	/// <summary>
@@ -180,13 +218,95 @@ namespace UltReality::Rendering
 		/// <summary>
 		/// Method that will initialize the renderer and prepare it to receive rendering task requests
 		/// </summary>
-		/// <param name="targetWindow">A <seealso cref="UltReality.Rendering.DisplayTarget"/> structure instance that points to a platform specific window instance to render to</param>
-		virtual void RENDERER_INTERFACE_CALL Initialize(DisplayTarget targetWindow, const UltReality::Utilities::GameTimer* gameTimer) = 0;
+		/// <param name="viewport">A <see cref="DisplayTarget"/> structure instance that points to a platform specific window instance to render to</param>
+		virtual void RENDERER_INTERFACE_CALL Initialize(DisplayTarget viewport) = 0;
 
 		/// <summary>
-		/// Method that produces a buffer in the renderer
+		/// Method that will have the renderer create a GPU vertex buffer resource
 		/// </summary>
-		virtual void RENDERER_INTERFACE_CALL CreateBuffer() = 0;
+		/// <param name="data">Data to load into GPU buffer</param>
+		/// <param name="size">Number of bytes in the data</param>
+		/// <param name="usage">What type of buffer to create (Static/Dynamic)</param>
+		/// <returns>A handle to the created buffer resource</returns>
+		virtual BufferHandle RENDERER_INTERFACE_CALL CreateVertexBuffer(const void* data, size_t size, BufferUsage usage) = 0;
+
+		/// <summary>
+		/// Method that will have the renderer create a GPU index buffer resource
+		/// </summary>
+		/// <param name="data">Data to load into GPU buffer</param>
+		/// <param name="size">Number of bytes in the data</param>
+		/// <param name="usage">What type of buffer to create (Static/Dynamic)</param>
+		/// <returns>A handle to the created buffer resource</returns>
+		virtual BufferHandle RENDERER_INTERFACE_CALL CreateIndexBuffer(const void* data, size_t size, BufferUsage usage) = 0;
+		
+		/// <summary>
+		/// Method that will have the renderer update a GPU buffer resource
+		/// </summary>
+		/// <param name="handle">Handle to the buffer resource to update</param>
+		/// <param name="data">Data to use to update the buffer</param>
+		/// <param name="size">Number of bytes in the data</param>
+		/// <param name="offset">Number of bytes to offset into the handle's data buffer</param>
+		virtual void RENDERER_INTERFACE_CALL UpdateBuffer(BufferHandle handle, const void* data, size_t size, size_t offset = 0) = 0;
+
+		/// <summary>
+		/// Method that will have the renderer destroy a GPU buffer resource
+		/// </summary>
+		/// <param name="handle">Handle to the buffer resource to destroy</param>
+		virtual void RENDERER_INTERFACE_CALL DestroyBuffer(BufferHandle handle) = 0;
+
+		/// <summary>
+		/// Method that will have the renderer create a GPU texture resource
+		/// </summary>
+		/// <param name="desc">Description of the texture to be loaded/created</param>
+		/// <param name="initialData">Initial data to load into the texture resource</param>
+		/// <returns>A handle to the created buffer resource</returns>
+		virtual TextureHandle RENDERER_INTERFACE_CALL CreateTexture(const TextureDesc& desc, const void* initialData) = 0;
+
+		/// <summary>
+		/// Method that will have the renderer update a GPU texture resource
+		/// </summary>
+		/// <param name="handle">Handle to the texture resource to update</param>
+		/// <param name="data">Data to use to update the texture</param>
+		/// <param name="size">Number of bytes in the data</param>
+		/// <param name="regionDesc">Description of the region of the texture to update</param>
+		virtual void RENDERER_INTERFACE_CALL UpdateTexture(TextureHandle handle, const void* data, size_t size, const TextureUpdateDesc& regionDesc) = 0;
+
+		/// <summary>
+		/// Method that will have the renderer destroy a GPU texture resource
+		/// </summary>
+		/// <param name="handle">Handle to the texture resource to destroy</param>
+		virtual void RENDERER_INTERFACE_CALL DestroyTexture(TextureHandle handle) = 0;
+
+		/// <summary>
+		/// Method that will have the renderer create a GPU shader resource from source code directly
+		/// </summary>
+		/// <param name="source">Shader source</param>
+		/// <param name="type">Type of shader to compile and load</param>
+		/// <returns>A handle to the created shader resource</returns>
+		virtual ShaderHandle RENDERER_INTERFACE_CALL CreateShaderFromSource(const std::string& source, ShaderType type) = 0;
+		
+		/// <summary>
+		/// Method that will have the renderer create a GPU shader resource from a source file
+		/// </summary>
+		/// <param name="filePath">Path to the shader code file</param>
+		/// <param name="type">Type of shader to compile and load</param>
+		/// <returns>A handle to the created shader resource</returns>
+		virtual ShaderHandle RENDERER_INTERFACE_CALL CreateShaderFromSource(const std::string& filePath, ShaderType type) = 0;
+
+		/// <summary>
+		/// Method that will have the renderer create a GPU shader resource from a pre-compiled shader
+		/// </summary>
+		/// <param name="filePath">Path to the pre-compiled shader binary</param>
+		/// <param name="type">Type of shader to load</param>
+		/// <returns>A handle to the created shader resource</returns>
+		virtual ShaderHandle RENDERER_INTERFACE_CALL CreateShaderFromBinary(const std::string& filePath, ShaderType type) = 0;
+
+		/// <summary>
+		/// Method that will have the renderer destroy a GPU shader resource
+		/// </summary>
+		/// <param name="handle">Handle to the shader resource to destroy</param>
+		/// <returns></returns>
+		virtual void RENDERER_INTERFACE_CALL DestroyShader(ShaderHandle handle) = 0;
 
 		/// <summary>
 		/// Method that issues a render call. Purge the render queue
@@ -204,15 +324,10 @@ namespace UltReality::Rendering
 		virtual void RENDERER_INTERFACE_CALL FlushCommandQueue() = 0;
 
 		/// <summary>
-		/// Method that calculates frame stats
-		/// </summary>
-		virtual void RENDERER_INTERFACE_CALL CalculateFrameStats(FrameStats* fs) = 0;
-
-		/// <summary>
 		/// Method that gets info on available adapters and reports details
 		/// </summary>
 		/// <returns></returns>
-		virtual void RENDERER_INTERFACE_CALL LogAdapters() = 0;
+		virtual void RENDERER_INTERFACE_CALL LogDisplayAdapters() = 0;
 
 		/// <summary>
 		/// Method to set the display settings for the renderer
@@ -381,6 +496,62 @@ namespace UltReality::Rendering
 		{
 			m_performanceSettings = settings;
 		}
+
+		enum class GpuTimingPass
+		{
+			Frame,			// Total frame GPU time
+			ShadowPass,		// Shadow map rendering
+			GeometryPass,	// Main geometry rendering
+			LightingPass,	// Deferred or forward lighting calculations
+			PostProcessing, // Bloom, SSAO, motion blur, etc.
+			ComputePass,	// Compute shader-based operations
+			UI,				// 2D UI rendering
+			Custom0,		// Reserved for user-defined passes
+			Custom1,		// Reserved for user-defined passes
+			Custom2,		// Reserved for user-defined passes
+		};
+
+		/// <summary>
+		/// Method that will configure the renderer to compute GPU profiling details
+		/// </summary>
+		/// <param name="enable">Enables or disables GPU profiling</param>
+		virtual void RENDERER_INTERFACE_CALL EnableGPUProfiling(bool enable) noexcept = 0;
+
+		/// <summary>
+		/// Method that queries the renderers active GPU profiling configuration
+		/// </summary>
+		/// <returns>True if the renderer is configured to compute GPU profiling details, false otherwise</returns>
+		virtual bool RENDERER_INTERFACE_CALL IsGpuProfilingEnabled() const noexcept = 0;
+
+		/// <summary>
+		/// Starts a GPU timer section (useful for measuring specific passes)
+		/// used in conjunction with <see cref="EndGpuTimer"/>
+		/// </summary>
+		/// <param name="pass">The rendering pass to begin timing on</param>
+		virtual void RENDERER_INTERFACE_CALL BeginGpuTimer(GpuTimingPass pass) noexcept = 0;
+
+		/// <summary>
+		/// Ends a GPU timer section (useful for measuring specific passes)
+		/// </summary>
+		/// <param name="pass"></param>
+		/// <returns></returns>
+		virtual void RENDERER_INTERFACE_CALL EndGpuTimer(GpuTimingPass pass) noexcept = 0;
+
+		/// <summary>
+		/// Retrieves the total GPU frame time in milliseconds
+		/// </summary>
+		virtual float RENDERER_INTERFACE_CALL GetGpuFrameTime() const noexcept = 0;
+
+		/// <summary>
+		/// Retrieves the GPU time for specified pass in milliseconds
+		/// </summary>
+		/// <param name="pass">The pass to get timing info for</param>
+		virtual float RENDERER_INTERFACE_CALL GetGpuTimeForPass(GpuTimingPass pass) const noexcept = 0;
+
+		/// <summary>
+		/// Reset the GPU profiling data
+		/// </summary>
+		virtual void RENDERER_INTERFACE_CALL ResetGpuTimers() noexcept = 0;
 	};
 }
 
