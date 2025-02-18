@@ -2,9 +2,16 @@
 #define ULTREALITY_RENDERING_RENDERER_INTERFACE_H
 
 #include <stdint.h>
+#include <string>
+#include <vector>
 
 #include <DisplayTarget.h>
 #include <PlatformMessageHandler.h>
+
+#include <IRenderer_ResourceCreation.h>
+#include <IRenderer_HardwareQuery.h>
+#include <IRenderer_Settings.h>
+#include <IRenderer_Profiling.h>
 
 #if defined(_WIN_TARGET)
 	#if defined(RENDERER_INTERFACE_EXPORTS)
@@ -32,172 +39,8 @@
 	#define RENDERER_INTERFACE_CALL __cdecl
 #endif
 
-namespace UltReality::Utilities
-{
-	class GameTimer;
-}
-
 namespace UltReality::Rendering
 {
-	struct FrameStats
-	{
-		float fps;
-		float mspf;
-	};
-
-	struct AdapterDesc
-	{
-		wchar_t Desc[128];
-		uint32_t VendorID;
-		uint32_t DeviceID;
-		uint32_t SubSysID;
-		uint32_t Revision;
-		size_t VideoMem;
-		size_t SysMem;
-		size_t SrdSysMem;
-		struct LocalID
-		{
-			uint32_t low;
-			int32_t high;
-		};
-
-		LocalID AdapterID;
-	};
-
-	struct DisplaySettings
-	{
-		uint16_t width;
-		uint16_t height;
-		enum class ScreenMode
-		{
-			Windowed,
-			Borderless,
-			Fullscreen
-		};
-		ScreenMode mode;
-		uint16_t refreshRate;
-		bool vSync;
-	};
-
-	struct AntiAliasingSettings
-	{
-		enum class AntiAliasingType
-		{
-			None,
-			MSAA,
-			FXAA,
-			TAA
-		};
-		AntiAliasingType type;
-		uint8_t sampleCount;
-		uint8_t qualityLevel;
-	};
-
-	struct TextureSettings
-	{
-		uint8_t filteringLevel;
-		enum class TextureQuality
-		{
-			low,
-			medium,
-			high,
-			ultra
-		};
-		TextureQuality quality;
-		bool mipmapping;
-	};
-
-	struct ShadowSettings
-	{
-		enum class ShadowQuality
-		{
-			low,
-			medium,
-			high,
-			ultra
-		};
-		ShadowQuality quality;
-		uint16_t mapResolution;
-		bool softShadows;
-	};
-
-	struct LightingSettings
-	{
-		bool globalIllumination;
-		bool bloom;
-		uint8_t bloomIntensity;
-		bool hdr;
-		bool ambientOcclusion;
-		enum class AOQuality
-		{
-			low,
-			medium,
-			high,
-			ultra
-		};
-		AOQuality quality;
-	};
-
-	struct PostProcessingSettings
-	{
-		bool bloom;
-		uint8_t bloomIntensity;
-		bool DOF;
-		struct DOFParams
-		{
-
-		};
-		DOFParams dofParams;
-		bool motionBlur;
-		uint8_t motionBlurIntensity;
-	};
-
-	struct PerformanceSettings
-	{
-		bool dynamicResolution;
-		uint16_t minResolution;
-		uint16_t maxResolution;
-	};
-
-	using BufferHandle = size_t;
-	using TextureHandle = size_t;
-	using ShaderHandle = size_t;
-
-	enum class BufferUsage
-	{
-		Static, 
-		Dynamic
-	};
-
-	struct TextureDesc
-	{
-		uint16_t width;
-		uint16_t height;
-		uint16_t depth = 0; // For 3D textures
-		uint16_t mipLevels;
-	};
-
-	struct TextureUpdateDesc
-	{
-		uint16_t x;			// starting x coordinate
-		uint16_t y;			// starting y coordinate
-		uint16_t x = 0;		// starting z coordinate
-		uint16_t width;		// width of the region to update
-		uint16_t height;	// height of the region to update
-		uint16_t depth;		// depth of the region to update
-	};
-
-	enum class ShaderType
-	{
-		Vertex,
-		Pixel,
-		Geometry,
-		Hull,
-		Domain,
-		Compute,
-		Mesh
-	};
-
 	/// <summary>
 	/// Defines a common agnostic interface for specific renderers to implement so core engine modules can initiate rendering tasks
 	/// </summary>
@@ -216,31 +59,23 @@ namespace UltReality::Rendering
 		virtual ~IRenderer() = default;
 
 		/// <summary>
-		/// Method that will initialize the renderer and prepare it to receive rendering task requests
+		/// Initialize the renderer and prepare it to receive rendering task requests
 		/// </summary>
 		/// <param name="viewport">A <see cref="DisplayTarget"/> structure instance that points to a platform specific window instance to render to</param>
 		virtual void RENDERER_INTERFACE_CALL Initialize(DisplayTarget viewport) = 0;
 
 		/// <summary>
-		/// Method that will have the renderer create a GPU vertex buffer resource
+		/// Create a GPU buffer resource
 		/// </summary>
-		/// <param name="data">Data to load into GPU buffer</param>
+		/// <param name="data">Data to load into buffer at creation</param>
 		/// <param name="size">Number of bytes in the data</param>
-		/// <param name="usage">What type of buffer to create (Static/Dynamic)</param>
-		/// <returns>A handle to the created buffer resource</returns>
-		virtual BufferHandle RENDERER_INTERFACE_CALL CreateVertexBuffer(const void* data, size_t size, BufferUsage usage) = 0;
-
-		/// <summary>
-		/// Method that will have the renderer create a GPU index buffer resource
-		/// </summary>
-		/// <param name="data">Data to load into GPU buffer</param>
-		/// <param name="size">Number of bytes in the data</param>
-		/// <param name="usage">What type of buffer to create (Static/Dynamic)</param>
-		/// <returns>A handle to the created buffer resource</returns>
-		virtual BufferHandle RENDERER_INTERFACE_CALL CreateIndexBuffer(const void* data, size_t size, BufferUsage usage) = 0;
+		/// <param name="usage">Specify if the buffer is static or dynamic</param>
+		/// <param name="type">Specify the type of buffer to create. Vertex, Index, Constant, Structured, UnorderedAccess</param>
+		/// <returns>A handle to the created GPU buffer</returns>
+		virtual BufferHandle RENDERER_INTERFACE_CALL CreateBuffer(const void* data, size_t size, BufferUsage usage, BufferType type, BufferMemoryType memType) = 0;
 		
 		/// <summary>
-		/// Method that will have the renderer update a GPU buffer resource
+		/// Update a GPU buffer resource
 		/// </summary>
 		/// <param name="handle">Handle to the buffer resource to update</param>
 		/// <param name="data">Data to use to update the buffer</param>
@@ -249,13 +84,38 @@ namespace UltReality::Rendering
 		virtual void RENDERER_INTERFACE_CALL UpdateBuffer(BufferHandle handle, const void* data, size_t size, size_t offset = 0) = 0;
 
 		/// <summary>
-		/// Method that will have the renderer destroy a GPU buffer resource
+		/// Destroy a GPU buffer resource
 		/// </summary>
 		/// <param name="handle">Handle to the buffer resource to destroy</param>
 		virtual void RENDERER_INTERFACE_CALL DestroyBuffer(BufferHandle handle) = 0;
 
 		/// <summary>
-		/// Method that will have the renderer create a GPU texture resource
+		/// Map a buffer for CPU access
+		/// </summary>
+		/// <param name="handle">Handle to the buffer to map to CPU</param>
+		/// <param name="size">Number of bytes to map from the buffer</param>
+		/// <param name="offset">Byte that the mapping will start at in the buffer</param>
+		/// <param name="mapType">Specifies if the map is a Read or Write map (Note: Validity of map will depend on the memory type of the buffer)</param>
+		/// <returns>Pointer to the mapped data</returns>
+		virtual void* RENDERER_INTERFACE_CALL MapBuffer(BufferHandle handle, size_t size, size_t offset, MapType mapType) = 0;
+
+		/// <summary>
+		/// Un-map a buffer from CPU access
+		/// </summary>
+		/// <param name="handle">Handle to the buffer to un-map</param>
+		virtual void RENDERER_INTERFACE_CALL UnmapBuffer(BufferHandle handle) = 0;
+
+		/// <summary>
+		/// Copy data from the GPU into a CPU memory region
+		/// </summary>
+		/// <param name="handle">Handle to the buffer to copy data from</param>
+		/// <param name="destination">Location in CPU memory to copy data to</param>
+		/// <param name="size">Number of bytes to copy</param>
+		/// <param name="offset">Byte that the copy will begin at in the buffer</param>
+		virtual void RENDERER_INTERFACE_CALL ReadBuffer(BufferHandle handle, void* destination, size_t size, size_t offset = 0) = 0;
+
+		/// <summary>
+		/// Create a GPU texture resource
 		/// </summary>
 		/// <param name="desc">Description of the texture to be loaded/created</param>
 		/// <param name="initialData">Initial data to load into the texture resource</param>
@@ -324,10 +184,24 @@ namespace UltReality::Rendering
 		virtual void RENDERER_INTERFACE_CALL FlushCommandQueue() = 0;
 
 		/// <summary>
-		/// Method that gets info on available adapters and reports details
+		/// Method that gets descriptions of the available adapters (GPUs)
 		/// </summary>
-		/// <returns></returns>
-		virtual void RENDERER_INTERFACE_CALL LogDisplayAdapters() = 0;
+		/// <returns>A collection of descriptions for the systems adapters (GPUs)</returns>
+		virtual std::vector<AdapterDesc> RENDERER_INTERFACE_CALL GetDisplayAdapters() const = 0;
+
+		/// <summary>
+		/// Method that gets descriptions of the available outputs for a specified adapter (GPU)
+		/// </summary>
+		/// <param name="adapter">The adapter (GPU) to get output descriptions for</param>
+		/// <returns>A collection of descriptions for the adapter's (GPU's) outputs</returns>
+		virtual std::vector<OutputDesc> RENDERER_INTERFACE_CALL GetOutputsForAdapter(const AdapterDesc& adapter) const = 0;
+
+		/// <summary>
+		/// Method that gets display mode details for a specified output device
+		/// </summary>
+		/// <param name="output">The output device to get display mode info for</param>
+		/// <returns>A collection of available display mode descriptions for the output</returns>
+		virtual std::vector<DisplayMode> RENDERER_INTERFACE_CALL GetDisplayModesForOutput(const OutputDesc& output) const = 0;
 
 		/// <summary>
 		/// Method to set the display settings for the renderer
@@ -496,20 +370,6 @@ namespace UltReality::Rendering
 		{
 			m_performanceSettings = settings;
 		}
-
-		enum class GpuTimingPass
-		{
-			Frame,			// Total frame GPU time
-			ShadowPass,		// Shadow map rendering
-			GeometryPass,	// Main geometry rendering
-			LightingPass,	// Deferred or forward lighting calculations
-			PostProcessing, // Bloom, SSAO, motion blur, etc.
-			ComputePass,	// Compute shader-based operations
-			UI,				// 2D UI rendering
-			Custom0,		// Reserved for user-defined passes
-			Custom1,		// Reserved for user-defined passes
-			Custom2,		// Reserved for user-defined passes
-		};
 
 		/// <summary>
 		/// Method that will configure the renderer to compute GPU profiling details
