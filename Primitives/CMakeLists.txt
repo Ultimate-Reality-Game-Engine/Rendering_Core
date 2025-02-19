@@ -12,19 +12,17 @@ message(STATUS "RENDERING_PRIMITIVES_VERBOSE: ${RENDERING_PRIMITIVES_VERBOSE}")
 
 include(FetchContent)
 
-if (NOT TARGET UtilitiesShared)
-	if(NOT TARGET UtilitiesStatic)
-		# Fetch the Utilities library
+if (NOT TARGET Utilities)
+	# Fetch the Utilities library
 		FetchContent_Declare(
 			Utilities 
 			GIT_REPOSITORY https://github.com/Ultimate-Reality-Game-Engine/Utilities.git 
 			GIT_TAG master
 		)
 		FetchContent_MakeAvailable(Utilities)
-	endif()
 endif()
 
-option(RENDERING_PRIMITIVES_DEBUG "Enable CMake related Debug messages" ON)
+option(RENDERING_PRIMITIVES_DEBUG "Enable CMake related Debug messages" OFF)
 
 file(GLOB_RECURSE RenderingPrimitives_SOURCE "${CMAKE_CURRENT_SOURCE_DIR}/*/src/*.cpp")
 file(GLOB Primitives_DIRS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/*)
@@ -67,7 +65,7 @@ if(RENDERING_PRIMITIVES_BUILD)
 		endforeach()
 
 		# Link libraries to the target
-		target_link_libraries(RenderingPrimitives UtilitiesStatic)
+		target_link_libraries(RenderingPrimitives Utilities)
 
 		set_target_properties(RenderingPrimitives PROPERTIES 
 			VERSION ${PROJECT_VERSION} 
@@ -82,7 +80,7 @@ if(RENDERING_PRIMITIVES_BUILD)
 
 		# Install the targets
 		install(
-			TARGETS RenderingPrimitives
+			TARGETS RenderingPrimitives Utilities 
 			EXPORT RenderingPrimitives_Targets 
 			ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} # Static libraries/import libraries (.lib files for .dll linking) 
 			LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} # Shared libraries (.so) 

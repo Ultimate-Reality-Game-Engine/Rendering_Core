@@ -31,7 +31,7 @@ target_include_directories(RendererInterface INTERFACE
  	$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}> # This is used when the library is installed
 )
 
-target_link_libraries(RendererInterface INTERFACE DisplayTarget UtilitiesStatic UtilitiesShared)
+target_link_libraries(RendererInterface INTERFACE DisplayTarget Utilities)
 
 set_target_properties(RendererInterface PROPERTIES 
 	VERSION ${PROJECT_VERSION} 
@@ -48,7 +48,7 @@ set_target_properties(RendererInterface PROPERTIES
 
 # Install the targets
 install(
-	TARGETS DisplayTarget UtilitiesStatic UtilitiesShared RendererInterface 
+	TARGETS DisplayTarget Utilities RendererInterface 
 	EXPORT RendererInterface_Targets 
 	ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} # Static libraries/import libraries (.lib files for .dll linking) 
 	LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} # Shared libraries (.so) 
@@ -68,7 +68,7 @@ install(
 # Install the actual includes
 install(
 	DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/ 
-	DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+	DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/IRenderer
 )
 
 # Generate and install the package version config file
