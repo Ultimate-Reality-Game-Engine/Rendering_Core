@@ -46,7 +46,7 @@ namespace UltReality::Rendering
 	{
 		uint16_t x;			// starting x coordinate
 		uint16_t y;			// starting y coordinate
-		uint16_t x = 0;		// starting z coordinate
+		uint16_t z = 0;		// starting z coordinate
 		uint16_t width;		// width of the region to update
 		uint16_t height;	// height of the region to update
 		uint16_t depth;		// depth of the region to update

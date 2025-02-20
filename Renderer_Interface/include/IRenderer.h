@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <string>
 #include <vector>
+#include <filesystem>
 
 #include <DisplayTarget.h>
 #include <PlatformMessageHandler.h>
@@ -151,7 +152,7 @@ namespace UltReality::Rendering
 		/// <param name="filePath">Path to the shader code file</param>
 		/// <param name="type">Type of shader to compile and load</param>
 		/// <returns>A handle to the created shader resource</returns>
-		virtual ShaderHandle RENDERER_INTERFACE_CALL CreateShaderFromSource(const std::string& filePath, ShaderType type) = 0;
+		virtual ShaderHandle RENDERER_INTERFACE_CALL CreateShaderFromSource(const std::filesystem::path& filePath, ShaderType type) = 0;
 
 		/// <summary>
 		/// Method that will have the renderer create a GPU shader resource from a pre-compiled shader
