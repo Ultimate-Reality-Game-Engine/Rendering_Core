@@ -48,7 +48,7 @@ set_target_properties(RendererInterface PROPERTIES
 
 # Install the targets
 install(
-	TARGETS DisplayTarget Utilities RendererInterface 
+	TARGETS DisplayTarget 
 	EXPORT RendererInterface_Targets 
 	ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} # Static libraries/import libraries (.lib files for .dll linking) 
 	LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} # Shared libraries (.so) 

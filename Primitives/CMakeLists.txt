@@ -80,7 +80,7 @@ if(RENDERING_PRIMITIVES_BUILD)
 
 		# Install the targets
 		install(
-			TARGETS RenderingPrimitives Utilities 
+			TARGETS RenderingPrimitives 
 			EXPORT RenderingPrimitives_Targets 
 			ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} # Static libraries/import libraries (.lib files for .dll linking) 
 			LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} # Shared libraries (.so) 

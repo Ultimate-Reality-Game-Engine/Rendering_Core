@@ -1,12 +1,13 @@
 #ifndef ULTREALITY_RENDERING_IRENDERER_SETTINGS_H
 #define ULTREALITY_RENDERING_IRENDERER_SETTINGS_H
 
+#include <Primitives.h>
+
 namespace UltReality::Rendering
 {
 	struct DisplaySettings
 	{
-		uint16_t width;
-		uint16_t height;
+		Rectangle resolution;
 		enum class ScreenMode
 		{
 			Windowed,
@@ -94,8 +95,8 @@ namespace UltReality::Rendering
 	struct PerformanceSettings
 	{
 		bool dynamicResolution;
-		uint16_t minResolution;
-		uint16_t maxResolution;
+		Rectangle minResolution;
+		Rectangle maxResolution;
 	};
 }
 
