@@ -11,16 +11,14 @@ message(STATUS "RENDERER_INTERFACE_VERBOSE: ${RENDERER_INTERFACE_VERBOSE}")
 #**************************************************************************************************
 include(FetchContent)
 
-if (NOT TARGET UtilitiesShared)
-	if(NOT TARGET UtilitiesStatic)
-		# Fetch the Utilities library
-		FetchContent_Declare(
-			Utilities 
-			GIT_REPOSITORY https://github.com/Ultimate-Reality-Game-Engine/Utilities.git 
-			GIT_TAG master
-		)
-		FetchContent_MakeAvailable(Utilities)
-	endif()
+if(NOT TARGET Utilities)
+	# Fetch the Utilities library
+	FetchContent_Declare(
+		Utilities 
+		GIT_REPOSITORY https://github.com/Ultimate-Reality-Game-Engine/Utilities.git 
+		GIT_TAG master
+	)
+	FetchContent_MakeAvailable(Utilities)
 endif()
 
 # Create the Renderer Interface library
@@ -31,7 +29,7 @@ target_include_directories(RendererInterface INTERFACE
  	$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}> # This is used when the library is installed
 )
 
-target_link_libraries(RendererInterface INTERFACE DisplayTarget Utilities)
+target_link_libraries(RendererInterface INTERFACE DisplayTarget UtilitiesStatic)
 
 set_target_properties(RendererInterface PROPERTIES 
 	VERSION ${PROJECT_VERSION} 
@@ -48,7 +46,7 @@ set_target_properties(RendererInterface PROPERTIES
 
 # Install the targets
 install(
-	TARGETS DisplayTarget 
+	TARGETS RendererInterface 
 	EXPORT RendererInterface_Targets 
 	ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} # Static libraries/import libraries (.lib files for .dll linking) 
 	LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} # Shared libraries (.so) 
