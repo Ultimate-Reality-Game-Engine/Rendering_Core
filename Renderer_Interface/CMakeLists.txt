@@ -29,7 +29,7 @@ target_include_directories(RendererInterface INTERFACE
  	$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}> # This is used when the library is installed
 )
 
-target_link_libraries(RendererInterface INTERFACE DisplayTarget UtilitiesStatic)
+target_link_libraries(RendererInterface INTERFACE DisplayTarget RenderingPrimitives UtilitiesStatic)
 
 set_target_properties(RendererInterface PROPERTIES 
 	VERSION ${PROJECT_VERSION} 
