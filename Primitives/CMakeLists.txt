@@ -50,13 +50,33 @@ if(RENDERING_PRIMITIVES_BUILD)
 		target_link_libraries(RenderingPrimitives INTERFACE UtilitiesStatic)
 	endif()
 
+	if(IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/include")
+		if(RENDERING_PRIMITIVES_DEBUG)
+			message(STATUS "Adding include directory: ${CMAKE_CURRENT_SOURCE_DIR}/include")
+		endif()
+		target_include_directories(RenderingPrimitives INTERFACE 
+			$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include> 
+ 			$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/RenderingPrimitives/include> # This is used when the library is installed
+		)
+	endif()
+
+	if(IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/inl")
+		if(RENDERING_PRIMITIVES_DEBUG)
+			message(STATUS "Adding inl directory: ${CMAKE_CURRENT_SOURCE_DIR}/inl")
+		endif()
+		target_include_directories(RenderingPrimitives INTERFACE 
+			$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/inl> 
+ 			$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/RenderingPrimitives/${dir}/inl> # This is used when the library is installed
+		)
+	endif()
+
 	# Set up include directories for the static library target
 	foreach(dir ${Primitives_DIRS})
 		if(IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/${dir}/include")
 			if(RENDERING_PRIMITIVES_DEBUG)
 				message(STATUS "Adding include directory: ${CMAKE_CURRENT_SOURCE_DIR}/${dir}/include")
 			endif()
-			target_include_directories(RenderingPrimitives PUBLIC 
+			target_include_directories(RenderingPrimitives INTERFACE 
 				$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/${dir}/include> 
  				$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/RenderingPrimitives/${dir}> # This is used when the library is installed
 			)
@@ -66,7 +86,7 @@ if(RENDERING_PRIMITIVES_BUILD)
 			if(RENDERING_PRIMITIVES_DEBUG)
 				message(STATUS "Adding inl directory: ${CMAKE_CURRENT_SOURCE_DIR}/${dir}/inl")
 			endif()
-			target_include_directories(RenderingPrimitives PUBLIC 
+			target_include_directories(RenderingPrimitives INTERFACE 
 				$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/${dir}/inl> 
  				$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/RenderingPrimitives/${dir}> # This is used when the library is installed
 			)
@@ -102,6 +122,20 @@ if(RENDERING_PRIMITIVES_BUILD)
 		NAMESPACE UltReality::Rendering:: 
 		DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/cmake/RenderingPrimitives
 	)
+
+	if(IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/include")
+		install(
+			DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/include/"
+			DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/RenderingPrimitives"
+		)
+	endif()
+
+	if(IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/inl")
+		install(
+			DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/inl"
+			DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/RenderingPrimitives"
+		)
+	endif()
 
 	# Install the actual includes
 	foreach(dir ${RenderingPrimitives_DIRS})
