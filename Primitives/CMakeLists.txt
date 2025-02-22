@@ -41,36 +41,42 @@ if(RENDERING_PRIMITIVES_BUILD)
 	if(RenderingPrimitives_SOURCE)
 		add_library(RenderingPrimitives STATIC ${RenderingPrimitives_SOURCE})
 
-		# Set up include directories for the static library target
-		foreach(dir ${Primitives_DIRS})
-			if(IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/${dir}/include")
-				if(RENDERING_PRIMITIVES_DEBUG)
-					message(STATUS "Adding include directory: ${CMAKE_CURRENT_SOURCE_DIR}/${dir}/include")
-				endif()
-				target_include_directories(RenderingPrimitives PUBLIC 
-					$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/${dir}/include> 
- 					$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/RenderingPrimitives/${dir}> # This is used when the library is installed
-				)
-			endif()
-
-			if(IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/${dir}/inl")
-				if(RENDERING_PRIMITIVES_DEBUG)
-					message(STATUS "Adding inl directory: ${CMAKE_CURRENT_SOURCE_DIR}/${dir}/inl")
-				endif()
-				target_include_directories(RenderingPrimitives PUBLIC 
-					$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/${dir}/inl> 
- 					$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/RenderingPrimitives/${dir}> # This is used when the library is installed
-				)
-			endif()
-		endforeach()
+		# Link libraries to the target
+		target_link_libraries(RenderingPrimitives UtilitiesStatic)
+	else()
+		add_library(RenderingPrimitives INTERFACE)
 
 		# Link libraries to the target
-		target_link_libraries(RenderingPrimitives Utilities)
+		target_link_libraries(RenderingPrimitives INTERFACE UtilitiesStatic)
+	endif()
 
-		set_target_properties(RenderingPrimitives PROPERTIES 
-			VERSION ${PROJECT_VERSION} 
-			SOVERSION ${PROJECT_VERSION_MAJOR}
-		)
+	# Set up include directories for the static library target
+	foreach(dir ${Primitives_DIRS})
+		if(IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/${dir}/include")
+			if(RENDERING_PRIMITIVES_DEBUG)
+				message(STATUS "Adding include directory: ${CMAKE_CURRENT_SOURCE_DIR}/${dir}/include")
+			endif()
+			target_include_directories(RenderingPrimitives PUBLIC 
+				$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/${dir}/include> 
+ 				$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/RenderingPrimitives/${dir}> # This is used when the library is installed
+			)
+		endif()
+
+		if(IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/${dir}/inl")
+			if(RENDERING_PRIMITIVES_DEBUG)
+				message(STATUS "Adding inl directory: ${CMAKE_CURRENT_SOURCE_DIR}/${dir}/inl")
+			endif()
+			target_include_directories(RenderingPrimitives PUBLIC 
+				$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/${dir}/inl> 
+ 				$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/RenderingPrimitives/${dir}> # This is used when the library is installed
+			)
+		endif()
+	endforeach()
+
+	set_target_properties(RenderingPrimitives PROPERTIES 
+		VERSION ${PROJECT_VERSION} 
+		SOVERSION ${PROJECT_VERSION_MAJOR}
+	)
 
 # End Target Creation *****************************************************************************
 #**************************************************************************************************
@@ -78,78 +84,77 @@ if(RENDERING_PRIMITIVES_BUILD)
 # Installation and Packing Configuration **********************************************************
 #**************************************************************************************************
 
-		# Install the targets
-		install(
-			TARGETS RenderingPrimitives 
-			EXPORT RenderingPrimitives_Targets 
-			ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} # Static libraries/import libraries (.lib files for .dll linking) 
-			LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} # Shared libraries (.so) 
-			RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} # .exe or .dll 
-			PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR} # Headers/include directories marked as PUBLIC 
-			PRIVATE_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR} # Headers/include directories marked as PRIVATE
-		)
+	# Install the targets
+	install(
+		TARGETS RenderingPrimitives 
+		EXPORT RenderingPrimitives_Targets 
+		ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} # Static libraries/import libraries (.lib files for .dll linking) 
+		LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} # Shared libraries (.so) 
+		RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} # .exe or .dll 
+		PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR} # Headers/include directories marked as PUBLIC 
+		PRIVATE_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR} # Headers/include directories marked as PRIVATE
+	)
 
-		# Create the targets CMake file which contains the above definitions
-		install(
-			EXPORT RenderingPrimitives_Targets 
-			FILE RenderingPrimitives_Targets.cmake 
-			NAMESPACE UltReality::Rendering:: 
-			DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/cmake/RenderingPrimitives
-		)
+	# Create the targets CMake file which contains the above definitions
+	install(
+		EXPORT RenderingPrimitives_Targets 
+		FILE RenderingPrimitives_Targets.cmake 
+		NAMESPACE UltReality::Rendering:: 
+		DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/cmake/RenderingPrimitives
+	)
 
-		# Install the actual includes
-		foreach(dir ${RenderingPrimitives_DIRS})
-			if(IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/${dir}/include")
-				install(
-					DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/${dir}/include/"
-					DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/RenderingPrimitives/${dir}"
-				)
-			endif()
+	# Install the actual includes
+	foreach(dir ${RenderingPrimitives_DIRS})
+		if(IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/${dir}/include")
+			install(
+				DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/${dir}/include/"
+				DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/RenderingPrimitives/${dir}"
+			)
+		endif()
 
-			if(IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/${dir}/inl")
-				install(
-					DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/${dir}/inl/"
-					DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/RenderingPrimitives/${dir}"
-				)
-			endif()
-		endforeach()
+		if(IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/${dir}/inl")
+			install(
+				DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/${dir}/inl/"
+				DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/RenderingPrimitives/${dir}"
+			)
+		endif()
+	endforeach()
 
-		# Generate and install the package version config files
-		include(CMakePackageConfigHelpers)
-		write_basic_package_version_file(
-			"RenderingPrimitives_ConfigVersion.cmake" 
-			VERSION ${PROJECT_VERSION} 
-			COMPATIBILITY SameMajorVersion
-		)
-		configure_package_config_file(
-			"${CMAKE_CURRENT_SOURCE_DIR}/cmake_config/RenderingPrimitives_Config.cmake.in" 
-			"${CMAKE_CURRENT_BINARY_DIR}/RenderingPrimitives_Config.cmake" 
-			INSTALL_DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/cmake/RenderingPrimitives
-		)
+	# Generate and install the package version config files
+	include(CMakePackageConfigHelpers)
+	write_basic_package_version_file(
+		"RenderingPrimitives_ConfigVersion.cmake" 
+		VERSION ${PROJECT_VERSION} 
+		COMPATIBILITY SameMajorVersion
+	)
+	configure_package_config_file(
+		"${CMAKE_CURRENT_SOURCE_DIR}/cmake_config/RenderingPrimitives_Config.cmake.in" 
+		"${CMAKE_CURRENT_BINARY_DIR}/RenderingPrimitives_Config.cmake" 
+		INSTALL_DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/cmake/RenderingPrimitives
+	)
 
-		# Install the CMake config files
-		install(
-			FILES "${CMAKE_CURRENT_BINARY_DIR}/RenderingPrimitives_ConfigVersion.cmake" 
-			"${CMAKE_CURRENT_BINARY_DIR}/RenderingPrimitives_Config.cmake" 
-			DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/cmake/RenderingPrimitives
-		)
+	# Install the CMake config files
+	install(
+		FILES "${CMAKE_CURRENT_BINARY_DIR}/RenderingPrimitives_ConfigVersion.cmake" 
+		"${CMAKE_CURRENT_BINARY_DIR}/RenderingPrimitives_Config.cmake" 
+		DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/cmake/RenderingPrimitives
+	)
 
-		# Define Package install paths
-		set(INCLUDEDIR_FOR_PKG_CONFIG "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_INCLUDEDIR}")
-		set(LIBDIR_PKG_CONFIG "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}")
+	# Define Package install paths
+	set(INCLUDEDIR_FOR_PKG_CONFIG "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_INCLUDEDIR}")
+	set(LIBDIR_PKG_CONFIG "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}")
 
-		# Create and install the package config file
-		configure_file(
-			"${CMAKE_CURRENT_SOURCE_DIR}/cmake_config/RenderingPrimitives.pc.in" 
-			"${CMAKE_CURRENT_BINARY_DIR}/RenderingPrimitives.pc" @ONLY
-		)
+	# Create and install the package config file
+	configure_file(
+		"${CMAKE_CURRENT_SOURCE_DIR}/cmake_config/RenderingPrimitives.pc.in" 
+		"${CMAKE_CURRENT_BINARY_DIR}/RenderingPrimitives.pc" @ONLY
+	)
 
-		# Install the package config file
-		install(
-			FILES "${CMAKE_CURRENT_BINARY_DIR}/RenderingPrimitives.pc" 
-			DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig
-		)
-	endif()
+	# Install the package config file
+	install(
+		FILES "${CMAKE_CURRENT_BINARY_DIR}/RenderingPrimitives.pc" 
+		DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig
+	)
 endif()
 
 # A version that is often used to denote a specific build of the software, including revisions, builds, or other metadata
